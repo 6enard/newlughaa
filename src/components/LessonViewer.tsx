@@ -16,6 +16,7 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
   const [selectedLesson, setSelectedLesson] = useState<LessonWithContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'detail'>('grid');
+  const [cardIndex, setCardIndex] = useState(0);
 
   useEffect(() => {
     const loadLessons = async () => {
@@ -55,7 +56,6 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
   };
 
   if (viewMode === 'detail' && selectedLesson) {
-    const [cardIndex, setCardIndex] = useState(0);
     const currentCard = selectedLesson.content[cardIndex];
     const isLastCard = cardIndex === selectedLesson.content.length - 1;
 
@@ -206,6 +206,7 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
             key={lesson.id}
             onClick={() => {
               setSelectedLesson(lesson);
+              setCardIndex(0);
               setViewMode('detail');
             }}
             className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl hover:border-emerald-200 transition text-left group"
