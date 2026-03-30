@@ -52,21 +52,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signup = async (email: string, password: string) => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
+    try {
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         email: userCredential.user.email,
         createdAt: new Date(),
       });
-
-      setUser({
-        uid: userCredential.user.uid,
-        email: userCredential.user.email || email,
-      });
     } catch (error: any) {
-      throw error;
+      console.warn('Failed to create user profile:', error);
     }
+
+    setUser({
+      uid: userCredential.user.uid,
+      email: userCredential.user.email || email,
+    });
   };
 
   const login = async (email: string, password: string) => {
