@@ -52,26 +52,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signup = async (email: string, password: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-    await setDoc(doc(db, 'users', userCredential.user.uid), {
-      email: userCredential.user.email,
-      createdAt: new Date(),
-    });
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        email: userCredential.user.email,
+        createdAt: new Date(),
+      });
 
-    setUser({
-      uid: userCredential.user.uid,
-      email: userCredential.user.email || email,
-    });
+      setUser({
+        uid: userCredential.user.uid,
+        email: userCredential.user.email || email,
+      });
+    } catch (error: any) {
+      throw error;
+    }
   };
 
   const login = async (email: string, password: string) => {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-    setUser({
-      uid: userCredential.user.uid,
-      email: userCredential.user.email || email,
-    });
+      setUser({
+        uid: userCredential.user.uid,
+        email: userCredential.user.email || email,
+      });
+    } catch (error: any) {
+      throw error;
+    }
   };
 
   const logout = async () => {

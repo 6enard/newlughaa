@@ -8,6 +8,7 @@ export function Signup() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -25,12 +26,26 @@ export function Signup() {
 
     try {
       setError('');
+      setSuccess('');
       setLoading(true);
       await signup(email, password);
-      navigate('/');
-    } catch (err) {
-      setError('Failed to create account. Email may already be in use.');
-    } finally {
+      setSuccess('Account created successfully! Redirecting...');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      let errorMessage = 'Failed to create account. Please try again.';
+
+      if (err.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email is already registered. Please log in instead.';
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (err.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Please choose a stronger password.';
+      }
+
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -52,6 +67,12 @@ export function Signup() {
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
               {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg mb-4">
+              {success}
             </div>
           )}
 
