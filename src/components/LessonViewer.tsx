@@ -55,6 +55,35 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
   };
 
   if (viewMode === 'detail' && selectedLesson) {
+    const [cardIndex, setCardIndex] = useState(0);
+    const currentCard = selectedLesson.content[cardIndex];
+    const isLastCard = cardIndex === selectedLesson.content.length - 1;
+
+    const getLanguageWord = () => {
+      switch (languageId) {
+        case 'kalenjin':
+          return currentCard.kalenjin;
+        case 'kikuyu':
+          return currentCard.kikuyu;
+        case 'luo':
+          return currentCard.luo;
+        default:
+          return currentCard.kalenjin;
+      }
+    };
+
+    const handleNext = () => {
+      if (!isLastCard) {
+        setCardIndex(cardIndex + 1);
+      }
+    };
+
+    const handlePrevious = () => {
+      if (cardIndex > 0) {
+        setCardIndex(cardIndex - 1);
+      }
+    };
+
     return (
       <>
         <button
@@ -65,7 +94,7 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
           Back to Lessons
         </button>
 
-        <div className="mb-8">
+        <div className="mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             {selectedLesson.title}
           </h1>
@@ -74,53 +103,79 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
           </p>
         </div>
 
-        <div className="space-y-6">
-          {selectedLesson.content.map((item, index) => {
-            const getLanguageWord = () => {
-              switch (languageId) {
-                case 'kalenjin':
-                  return item.kalenjin;
-                case 'kikuyu':
-                  return item.kikuyu;
-                case 'luo':
-                  return item.luo;
-                default:
-                  return item.kalenjin;
-              }
-            };
+        <div className="flex items-center justify-center min-h-96">
+          <div className="w-full max-w-2xl">
+            <div className="bg-gradient-to-br from-emerald-50 to-sky-50 rounded-3xl shadow-2xl p-12 border border-emerald-200">
+              <div className="space-y-8">
+                <div>
+                  <p className="text-sm font-semibold text-emerald-700 uppercase tracking-widest mb-3">
+                    {getLanguageName(languageId)}
+                  </p>
+                  <p className="text-5xl font-bold text-gray-900">
+                    {getLanguageWord()}
+                  </p>
+                </div>
 
-            return (
-              <div
-                key={index}
-                className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                      {getLanguageName(languageId)}
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {getLanguageWord()}
-                    </p>
-                  </div>
-                  <div className="bg-emerald-50 rounded-lg p-4 flex flex-col justify-center">
-                    <p className="text-sm font-semibold text-emerald-700 uppercase tracking-wide mb-2">
-                      English
-                    </p>
-                    <p className="text-2xl font-semibold text-emerald-900">
-                      {item.english}
-                    </p>
-                  </div>
+                <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+
+                <div>
+                  <p className="text-sm font-semibold text-sky-700 uppercase tracking-widest mb-3">
+                    English
+                  </p>
+                  <p className="text-3xl font-semibold text-gray-800">
+                    {currentCard.english}
+                  </p>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
 
-        <div className="mt-8 bg-gradient-to-r from-emerald-50 to-sky-50 rounded-xl p-6 border border-emerald-200">
-          <p className="text-sm text-gray-600">
-            Keep practicing these words to reinforce your learning. Try pronouncing them out loud!
-          </p>
+            <div className="mt-10 flex items-center justify-between">
+              <button
+                onClick={handlePrevious}
+                disabled={cardIndex === 0}
+                className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Previous
+              </button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-600">
+                  {cardIndex + 1} / {selectedLesson.content.length}
+                </span>
+                <div className="flex gap-1">
+                  {selectedLesson.content.map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`h-2 rounded-full transition ${
+                        idx === cardIndex ? 'w-8 bg-emerald-600' : 'w-2 bg-gray-300'
+                      }`}
+                    ></div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={handleNext}
+                disabled={isLastCard}
+                className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+              >
+                {isLastCard ? 'Complete' : 'Next'}
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {isLastCard && (
+              <div className="mt-8 bg-gradient-to-r from-emerald-50 to-sky-50 rounded-xl p-6 border border-emerald-200 text-center">
+                <p className="text-lg font-semibold text-emerald-900">
+                  Great job! You've completed this lesson.
+                </p>
+                <p className="text-gray-600 mt-2">
+                  Practice these words and come back to reinforce your learning!
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </>
     );
