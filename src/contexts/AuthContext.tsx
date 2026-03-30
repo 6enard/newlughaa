@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface User {
   uid: string;
@@ -23,79 +24,89 @@ export function useAuth() {
   return context;
 }
 
-const STORAGE_KEY = 'lugha47_auth_user';
-
-interface StoredUser {
-  email: string;
-  passwordHash: string;
-}
-
-interface StoredUsers {
-  [email: string]: StoredUser;
-}
-
-const hashPassword = (password: string): string => {
-  return btoa(password);
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem(STORAGE_KEY);
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser({
+          uid: session.user.id,
+          email: session.user.email || '',
+        });
+      }
+      setLoading(false);
+    };
+
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      (async () => {
+        if (session?.user) {
+          setUser({
+            uid: session.user.id,
+            email: session.user.email || '',
+          });
+        } else {
+          setUser(null);
+        }
+      })();
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signup = async (email: string, password: string) => {
-    const usersData = localStorage.getItem('lugha47_users');
-    const users: StoredUsers = usersData ? JSON.parse(usersData) : {};
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-    if (users[email]) {
-      throw new Error('Email already in use');
+    if (error) {
+      throw error;
     }
 
-    const newUser: StoredUser = {
-      email,
-      passwordHash: hashPassword(password),
-    };
+    if (data.user) {
+      await supabase.from('user_profiles').insert({
+        id: data.user.id,
+        email: data.user.email || email,
+      });
 
-    users[email] = newUser;
-    localStorage.setItem('lugha47_users', JSON.stringify(users));
-
-    const authenticatedUser: User = {
-      uid: btoa(email),
-      email,
-    };
-
-    setUser(authenticatedUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(authenticatedUser));
+      setUser({
+        uid: data.user.id,
+        email: data.user.email || email,
+      });
+    }
   };
 
   const login = async (email: string, password: string) => {
-    const usersData = localStorage.getItem('lugha47_users');
-    const users: StoredUsers = usersData ? JSON.parse(usersData) : {};
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    const storedUser = users[email];
-    if (!storedUser || storedUser.passwordHash !== hashPassword(password)) {
-      throw new Error('Invalid credentials');
+    if (error) {
+      throw error;
     }
 
-    const authenticatedUser: User = {
-      uid: btoa(email),
-      email,
-    };
-
-    setUser(authenticatedUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(authenticatedUser));
+    if (data.user) {
+      setUser({
+        uid: data.user.id,
+        email: data.user.email || email,
+      });
+    }
   };
 
   const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw error;
+    }
     setUser(null);
-    localStorage.removeItem(STORAGE_KEY);
   };
 
   const value = {

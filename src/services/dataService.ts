@@ -1,4 +1,5 @@
 import lessonsData from '../data/lessons.json';
+import { supabase } from '../lib/supabase';
 
 export interface Language {
   id: string;
@@ -24,25 +25,6 @@ export interface LessonContent {
   orderIndex: number;
 }
 
-interface UserLanguageSelection {
-  userId: string;
-  languageId: string;
-  createdAt: string;
-}
-
-interface UserProgress {
-  userId: string;
-  lessonId: string;
-  completed: boolean;
-  completedAt: string | null;
-  updatedAt: string;
-}
-
-const STORAGE_KEYS = {
-  USER_LANGUAGES: 'lugha47_user_languages',
-  USER_PROGRESS: 'lugha47_user_progress',
-};
-
 export const getLanguages = async (): Promise<Language[]> => {
   return lessonsData.languages;
 };
@@ -59,35 +41,31 @@ export const saveUserLanguageSelection = async (
   userId: string,
   languageId: string
 ): Promise<void> => {
-  const stored = localStorage.getItem(STORAGE_KEYS.USER_LANGUAGES);
-  const selections: UserLanguageSelection[] = stored ? JSON.parse(stored) : [];
+  const { error } = await supabase
+    .from('user_language_selections')
+    .upsert(
+      { user_id: userId, language_id: languageId },
+      { onConflict: 'user_id,language_id' }
+    );
 
-  const existingIndex = selections.findIndex(
-    (s) => s.userId === userId && s.languageId === languageId
-  );
-
-  const newSelection: UserLanguageSelection = {
-    userId,
-    languageId,
-    createdAt: new Date().toISOString(),
-  };
-
-  if (existingIndex >= 0) {
-    selections[existingIndex] = newSelection;
-  } else {
-    selections.push(newSelection);
+  if (error) {
+    console.error('Error saving language selection:', error);
+    throw error;
   }
-
-  localStorage.setItem(STORAGE_KEYS.USER_LANGUAGES, JSON.stringify(selections));
 };
 
 export const getUserLanguages = async (userId: string): Promise<string[]> => {
-  const stored = localStorage.getItem(STORAGE_KEYS.USER_LANGUAGES);
-  const selections: UserLanguageSelection[] = stored ? JSON.parse(stored) : [];
+  const { data, error } = await supabase
+    .from('user_language_selections')
+    .select('language_id')
+    .eq('user_id', userId);
 
-  return selections
-    .filter((s) => s.userId === userId)
-    .map((s) => s.languageId);
+  if (error) {
+    console.error('Error fetching user languages:', error);
+    return [];
+  }
+
+  return data?.map((row) => row.language_id) || [];
 };
 
 export const saveUserProgress = async (
@@ -95,40 +73,40 @@ export const saveUserProgress = async (
   lessonId: string,
   completed: boolean
 ): Promise<void> => {
-  const stored = localStorage.getItem(STORAGE_KEYS.USER_PROGRESS);
-  const progressList: UserProgress[] = stored ? JSON.parse(stored) : [];
+  const { error } = await supabase
+    .from('user_progress')
+    .upsert(
+      {
+        user_id: userId,
+        lesson_id: lessonId,
+        completed,
+        completed_at: completed ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id,lesson_id' }
+    );
 
-  const existingIndex = progressList.findIndex(
-    (p) => p.userId === userId && p.lessonId === lessonId
-  );
-
-  const newProgress: UserProgress = {
-    userId,
-    lessonId,
-    completed,
-    completedAt: completed ? new Date().toISOString() : null,
-    updatedAt: new Date().toISOString(),
-  };
-
-  if (existingIndex >= 0) {
-    progressList[existingIndex] = newProgress;
-  } else {
-    progressList.push(newProgress);
+  if (error) {
+    console.error('Error saving user progress:', error);
+    throw error;
   }
-
-  localStorage.setItem(STORAGE_KEYS.USER_PROGRESS, JSON.stringify(progressList));
 };
 
 export const getUserProgress = async (userId: string): Promise<Record<string, boolean>> => {
-  const stored = localStorage.getItem(STORAGE_KEYS.USER_PROGRESS);
-  const progressList: UserProgress[] = stored ? JSON.parse(stored) : [];
+  const { data, error } = await supabase
+    .from('user_progress')
+    .select('lesson_id, completed')
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Error fetching user progress:', error);
+    return {};
+  }
 
   const progressMap: Record<string, boolean> = {};
-  progressList
-    .filter((p) => p.userId === userId)
-    .forEach((p) => {
-      progressMap[p.lessonId] = p.completed;
-    });
+  data?.forEach((row) => {
+    progressMap[row.lesson_id] = row.completed;
+  });
 
   return progressMap;
 };
