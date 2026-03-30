@@ -2,7 +2,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Languages, BookOpen, Trophy, TrendingUp, LogOut, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { getLanguages, saveUserLanguageSelection, initializeLanguagesData } from '../services/firestoreService';
+import { getLanguages, saveUserLanguageSelection } from '../services/supabaseService';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { LessonViewer } from '../components/LessonViewer';
 
@@ -19,7 +19,6 @@ export function Home() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        await initializeLanguagesData();
         const languagesData = await getLanguages();
         setLanguages(languagesData);
       } catch (error) {
@@ -35,7 +34,7 @@ export function Home() {
     setSelectedLanguage(languageId);
     try {
       if (user) {
-        await saveUserLanguageSelection(user.uid, languageId);
+        await saveUserLanguageSelection(user.id, languageId);
       }
       setView('lessons');
     } catch (error) {

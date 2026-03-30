@@ -1,40 +1,34 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import { getLessons } from '../services/firestoreService';
-
-interface LessonContent {
-  kalenjin: string;
-  kikuyu: string;
-  luo: string;
-  english: string;
-}
-
-interface Lesson {
-  id: string;
-  title: string;
-  description: string;
-  content: LessonContent[];
-}
+import { getLessons, getLessonContent, Lesson, LessonContent } from '../services/supabaseService';
 
 interface LessonViewerProps {
   languageId: string;
   onBack: () => void;
 }
 
-export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
-  const [loading, setLoading] = useState(true);
+interface LessonWithContent extends Lesson {
+  content: LessonContent[];
+}
 
-  const languageKey = languageId as 'kalenjin' | 'kikuyu' | 'luo';
+export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
+  const [lessons, setLessons] = useState<LessonWithContent[]>([]);
+  const [selectedLesson, setSelectedLesson] = useState<LessonWithContent | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadLessons = async () => {
       try {
         const lessonsData = await getLessons();
-        setLessons(lessonsData);
-        if (lessonsData.length > 0) {
-          setSelectedLesson(lessonsData[0]);
+        const lessonsWithContent = await Promise.all(
+          lessonsData.map(async (lesson) => {
+            const content = await getLessonContent(lesson.id);
+            return { ...lesson, content };
+          })
+        );
+        setLessons(lessonsWithContent);
+        if (lessonsWithContent.length > 0) {
+          setSelectedLesson(lessonsWithContent[0]);
         }
       } catch (error) {
         console.error('Error loading lessons:', error);
