@@ -1,5 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '../lib/supabase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { auth, db } from '../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 interface User {
   uid: string;
@@ -29,83 +36,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
         setUser({
-          uid: session.user.id,
-          email: session.user.email || '',
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '',
         });
+      } else {
+        setUser(null);
       }
       setLoading(false);
-    };
-
-    initAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      (async () => {
-        if (session?.user) {
-          setUser({
-            uid: session.user.id,
-            email: session.user.email || '',
-          });
-        } else {
-          setUser(null);
-        }
-      })();
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const signup = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+    await setDoc(doc(db, 'users', userCredential.user.uid), {
+      email: userCredential.user.email,
+      createdAt: new Date(),
     });
 
-    if (error) {
-      throw error;
-    }
-
-    if (data.user) {
-      await supabase.from('user_profiles').insert({
-        id: data.user.id,
-        email: data.user.email || email,
-      });
-
-      setUser({
-        uid: data.user.id,
-        email: data.user.email || email,
-      });
-    }
+    setUser({
+      uid: userCredential.user.uid,
+      email: userCredential.user.email || email,
+    });
   };
 
   const login = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+    setUser({
+      uid: userCredential.user.uid,
+      email: userCredential.user.email || email,
     });
-
-    if (error) {
-      throw error;
-    }
-
-    if (data.user) {
-      setUser({
-        uid: data.user.id,
-        email: data.user.email || email,
-      });
-    }
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      throw error;
-    }
+    await signOut(auth);
     setUser(null);
   };
 

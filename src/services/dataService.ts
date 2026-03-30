@@ -1,5 +1,14 @@
 import lessonsData from '../data/lessons.json';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import {
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore';
 
 export interface Language {
   id: string;
@@ -41,31 +50,27 @@ export const saveUserLanguageSelection = async (
   userId: string,
   languageId: string
 ): Promise<void> => {
-  const { error } = await supabase
-    .from('user_language_selections')
-    .upsert(
-      { user_id: userId, language_id: languageId },
-      { onConflict: 'user_id,language_id' }
-    );
-
-  if (error) {
+  try {
+    const docRef = doc(db, 'users', userId, 'languages', languageId);
+    await setDoc(docRef, {
+      languageId,
+      createdAt: new Date(),
+    });
+  } catch (error) {
     console.error('Error saving language selection:', error);
     throw error;
   }
 };
 
 export const getUserLanguages = async (userId: string): Promise<string[]> => {
-  const { data, error } = await supabase
-    .from('user_language_selections')
-    .select('language_id')
-    .eq('user_id', userId);
-
-  if (error) {
+  try {
+    const languagesRef = collection(db, 'users', userId, 'languages');
+    const snapshot = await getDocs(languagesRef);
+    return snapshot.docs.map((doc) => doc.data().languageId);
+  } catch (error) {
     console.error('Error fetching user languages:', error);
     return [];
   }
-
-  return data?.map((row) => row.language_id) || [];
 };
 
 export const saveUserProgress = async (
@@ -73,40 +78,33 @@ export const saveUserProgress = async (
   lessonId: string,
   completed: boolean
 ): Promise<void> => {
-  const { error } = await supabase
-    .from('user_progress')
-    .upsert(
-      {
-        user_id: userId,
-        lesson_id: lessonId,
-        completed,
-        completed_at: completed ? new Date().toISOString() : null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id,lesson_id' }
-    );
-
-  if (error) {
+  try {
+    const docRef = doc(db, 'users', userId, 'progress', lessonId);
+    await setDoc(docRef, {
+      lessonId,
+      completed,
+      completedAt: completed ? new Date() : null,
+      updatedAt: new Date(),
+    });
+  } catch (error) {
     console.error('Error saving user progress:', error);
     throw error;
   }
 };
 
 export const getUserProgress = async (userId: string): Promise<Record<string, boolean>> => {
-  const { data, error } = await supabase
-    .from('user_progress')
-    .select('lesson_id, completed')
-    .eq('user_id', userId);
+  try {
+    const progressRef = collection(db, 'users', userId, 'progress');
+    const snapshot = await getDocs(progressRef);
 
-  if (error) {
+    const progressMap: Record<string, boolean> = {};
+    snapshot.docs.forEach((doc) => {
+      progressMap[doc.data().lessonId] = doc.data().completed;
+    });
+
+    return progressMap;
+  } catch (error) {
     console.error('Error fetching user progress:', error);
     return {};
   }
-
-  const progressMap: Record<string, boolean> = {};
-  data?.forEach((row) => {
-    progressMap[row.lesson_id] = row.completed;
-  });
-
-  return progressMap;
 };
