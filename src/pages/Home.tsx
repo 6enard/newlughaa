@@ -32,11 +32,11 @@ export function Home() {
 
   const handleSelectLanguage = async (languageId: string) => {
     setSelectedLanguage(languageId);
+    setView('lessons');
     try {
       if (user) {
         await saveUserLanguageSelection(user.uid, languageId);
       }
-      setView('lessons');
     } catch (error) {
       console.error('Error saving language selection:', error);
     }
