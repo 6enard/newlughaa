@@ -2,7 +2,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Languages, BookOpen, Trophy, TrendingUp, LogOut, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { getLanguages, saveUserLanguageSelection } from '../services/supabaseService';
+import { getLanguages, saveUserLanguageSelection } from '../services/firestoreService';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { LessonViewer } from '../components/LessonViewer';
 
@@ -34,7 +34,7 @@ export function Home() {
     setSelectedLanguage(languageId);
     try {
       if (user) {
-        await saveUserLanguageSelection(user.id, languageId);
+        await saveUserLanguageSelection(user.uid, languageId);
       }
       setView('lessons');
     } catch (error) {
