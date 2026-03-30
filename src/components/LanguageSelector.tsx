@@ -41,8 +41,7 @@ export function LanguageSelector({
         {languages.map((language) => (
           <div
             key={language.id}
-            className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl hover:border-emerald-200 transition group cursor-pointer"
-            onClick={() => onSelectLanguage(language.id)}
+            className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl hover:border-emerald-200 transition group"
           >
             <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-emerald-200 transition">
               <BookOpen className="w-6 h-6 text-emerald-600" />
@@ -56,7 +55,10 @@ export function LanguageSelector({
             <p className="text-gray-600 mb-4">
               {language.description}
             </p>
-            <button className="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition">
+            <button
+              onClick={() => onSelectLanguage(language.id)}
+              className="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition"
+            >
               Start Learning
             </button>
           </div>
