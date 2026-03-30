@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import { getLessons, getLessonContent, Lesson, LessonContent } from '../services/firestoreService';
+import { getLessons, getLessonContent, Lesson, LessonContent } from '../services/dataService';
 
 interface LessonViewerProps {
   languageId: string;

@@ -2,7 +2,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Languages, BookOpen, Trophy, TrendingUp, LogOut, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { getLanguages, saveUserLanguageSelection } from '../services/firestoreService';
+import { getLanguages, saveUserLanguageSelection } from '../services/dataService';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { LessonViewer } from '../components/LessonViewer';
 

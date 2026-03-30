@@ -1,12 +1,9 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import {
-  User,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-} from 'firebase/auth';
-import { auth } from '../lib/firebase';
+
+interface User {
+  uid: string;
+  email: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -26,29 +23,79 @@ export function useAuth() {
   return context;
 }
 
+const STORAGE_KEY = 'lugha47_auth_user';
+
+interface StoredUser {
+  email: string;
+  passwordHash: string;
+}
+
+interface StoredUsers {
+  [email: string]: StoredUser;
+}
+
+const hashPassword = (password: string): string => {
+  return btoa(password);
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    const storedUser = localStorage.getItem(STORAGE_KEY);
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setLoading(false);
   }, []);
 
   const signup = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const usersData = localStorage.getItem('lugha47_users');
+    const users: StoredUsers = usersData ? JSON.parse(usersData) : {};
+
+    if (users[email]) {
+      throw new Error('Email already in use');
+    }
+
+    const newUser: StoredUser = {
+      email,
+      passwordHash: hashPassword(password),
+    };
+
+    users[email] = newUser;
+    localStorage.setItem('lugha47_users', JSON.stringify(users));
+
+    const authenticatedUser: User = {
+      uid: btoa(email),
+      email,
+    };
+
+    setUser(authenticatedUser);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(authenticatedUser));
   };
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    const usersData = localStorage.getItem('lugha47_users');
+    const users: StoredUsers = usersData ? JSON.parse(usersData) : {};
+
+    const storedUser = users[email];
+    if (!storedUser || storedUser.passwordHash !== hashPassword(password)) {
+      throw new Error('Invalid credentials');
+    }
+
+    const authenticatedUser: User = {
+      uid: btoa(email),
+      email,
+    };
+
+    setUser(authenticatedUser);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(authenticatedUser));
   };
 
   const logout = async () => {
-    await signOut(auth);
+    setUser(null);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const value = {
