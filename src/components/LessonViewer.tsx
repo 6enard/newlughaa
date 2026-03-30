@@ -75,50 +75,46 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
         </div>
 
         <div className="space-y-6">
-          {selectedLesson.content.map((item, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                <div>
-                  <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Kalenjin
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {item.kalenjin}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Kikuyu
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {item.kikuyu}
-                  </p>
-                </div>
-              </div>
+          {selectedLesson.content.map((item, index) => {
+            const getLanguageWord = () => {
+              switch (languageId) {
+                case 'kalenjin':
+                  return item.kalenjin;
+                case 'kikuyu':
+                  return item.kikuyu;
+                case 'luo':
+                  return item.luo;
+                default:
+                  return item.kalenjin;
+              }
+            };
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Luo
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {item.luo}
-                  </p>
-                </div>
-                <div className="bg-emerald-50 rounded-lg p-4">
-                  <p className="text-sm font-semibold text-emerald-700 uppercase tracking-wide mb-2">
-                    English
-                  </p>
-                  <p className="text-lg font-semibold text-emerald-900">
-                    {item.english}
-                  </p>
+            return (
+              <div
+                key={index}
+                className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                      {getLanguageName(languageId)}
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {getLanguageWord()}
+                    </p>
+                  </div>
+                  <div className="bg-emerald-50 rounded-lg p-4 flex flex-col justify-center">
+                    <p className="text-sm font-semibold text-emerald-700 uppercase tracking-wide mb-2">
+                      English
+                    </p>
+                    <p className="text-2xl font-semibold text-emerald-900">
+                      {item.english}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-8 bg-gradient-to-r from-emerald-50 to-sky-50 rounded-xl p-6 border border-emerald-200">
