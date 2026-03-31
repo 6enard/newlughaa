@@ -1,6 +1,7 @@
 import { useAuth } from '../contexts/AuthContext';
+import { useAdmin } from '../contexts/AdminContext';
 import { useNavigate } from 'react-router-dom';
-import { Languages, BookOpen, Trophy, TrendingUp, LogOut, ArrowRight } from 'lucide-react';
+import { Languages, BookOpen, Trophy, TrendingUp, LogOut, ArrowRight, Shield } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getLanguages, saveUserLanguageSelection } from '../services/dataService';
 import { LanguageSelector } from '../components/LanguageSelector';
@@ -10,6 +11,7 @@ type HomeView = 'dashboard' | 'languages' | 'lessons';
 
 export function Home() {
   const { user, logout } = useAuth();
+  const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const [view, setView] = useState<HomeView>('dashboard');
   const [languages, setLanguages] = useState<any[]>([]);
@@ -80,6 +82,15 @@ export function Home() {
             </button>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-600">{user?.email}</span>
+              {isAdmin && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 hover:bg-amber-200 rounded-lg transition font-semibold"
+                >
+                  <Shield className="w-4 h-4" />
+                  <span>Admin Panel</span>
+                </button>
+              )}
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"

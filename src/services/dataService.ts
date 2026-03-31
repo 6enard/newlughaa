@@ -1,4 +1,3 @@
-import lessonsData from '../data/lessons.json';
 import { db } from '../lib/firebase';
 import {
   doc,
@@ -8,6 +7,9 @@ import {
   query,
   where,
   getDocs,
+  orderBy,
+  deleteDoc,
+  addDoc,
 } from 'firebase/firestore';
 
 export interface Language {
@@ -15,6 +17,7 @@ export interface Language {
   name: string;
   nativeSpelling: string;
   description: string;
+  orderIndex?: number;
 }
 
 export interface Lesson {
@@ -22,6 +25,9 @@ export interface Lesson {
   title: string;
   description: string;
   orderIndex: number;
+  createdBy?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface LessonContent {
@@ -59,15 +65,126 @@ export interface QuizResult {
 }
 
 export const getLanguages = async (): Promise<Language[]> => {
-  return lessonsData.languages;
+  try {
+    const languagesRef = collection(db, 'languages');
+    const q = query(languagesRef, orderBy('orderIndex', 'asc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Language[];
+  } catch (error) {
+    console.error('Error fetching languages:', error);
+    return [];
+  }
 };
 
 export const getLessons = async (): Promise<Lesson[]> => {
-  return lessonsData.lessons;
+  try {
+    const lessonsRef = collection(db, 'lessons');
+    const q = query(lessonsRef, orderBy('orderIndex', 'asc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Lesson[];
+  } catch (error) {
+    console.error('Error fetching lessons:', error);
+    return [];
+  }
+};
+
+export const getLesson = async (lessonId: string): Promise<Lesson | null> => {
+  try {
+    const lessonRef = doc(db, 'lessons', lessonId);
+    const lessonDoc = await getDoc(lessonRef);
+    if (!lessonDoc.exists()) return null;
+    return {
+      id: lessonDoc.id,
+      ...lessonDoc.data(),
+    } as Lesson;
+  } catch (error) {
+    console.error('Error fetching lesson:', error);
+    return null;
+  }
+};
+
+export const saveLesson = async (lesson: Partial<Lesson> & { title: string; description: string }): Promise<Lesson> => {
+  try {
+    if (lesson.id) {
+      const lessonRef = doc(db, 'lessons', lesson.id);
+      await setDoc(lessonRef, {
+        ...lesson,
+        updatedAt: new Date(),
+      }, { merge: true });
+      return { ...lesson, id: lesson.id } as Lesson;
+    } else {
+      const lessonsRef = collection(db, 'lessons');
+      const docRef = await addDoc(lessonsRef, {
+        ...lesson,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      return { ...lesson, id: docRef.id } as Lesson;
+    }
+  } catch (error) {
+    console.error('Error saving lesson:', error);
+    throw error;
+  }
+};
+
+export const deleteLesson = async (lessonId: string): Promise<void> => {
+  try {
+    const lessonRef = doc(db, 'lessons', lessonId);
+    await deleteDoc(lessonRef);
+  } catch (error) {
+    console.error('Error deleting lesson:', error);
+    throw error;
+  }
 };
 
 export const getLessonContent = async (lessonId: string): Promise<LessonContent[]> => {
-  return lessonsData.lessonContent.filter((content) => content.lessonId === lessonId);
+  try {
+    const contentRef = collection(db, 'lessonContent');
+    const q = query(
+      contentRef,
+      where('lessonId', '==', lessonId),
+      orderBy('orderIndex', 'asc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as LessonContent[];
+  } catch (error) {
+    console.error('Error fetching lesson content:', error);
+    return [];
+  }
+};
+
+export const saveLessonContent = async (content: Partial<LessonContent> & { lessonId: string; english: string }): Promise<void> => {
+  try {
+    if (content.id) {
+      const contentRef = doc(db, 'lessonContent', content.id);
+      await setDoc(contentRef, content, { merge: true });
+    } else {
+      const contentCollectionRef = collection(db, 'lessonContent');
+      await addDoc(contentCollectionRef, content);
+    }
+  } catch (error) {
+    console.error('Error saving lesson content:', error);
+    throw error;
+  }
+};
+
+export const deleteLessonContent = async (contentId: string): Promise<void> => {
+  try {
+    const contentRef = doc(db, 'lessonContent', contentId);
+    await deleteDoc(contentRef);
+  } catch (error) {
+    console.error('Error deleting lesson content:', error);
+    throw error;
+  }
 };
 
 export const saveUserLanguageSelection = async (
@@ -134,8 +251,47 @@ export const getUserProgress = async (userId: string): Promise<Record<string, bo
 };
 
 export const getQuizQuestions = async (lessonId: string): Promise<QuizQuestion[]> => {
-  const quizData = lessonsData as any;
-  return quizData.quizQuestions?.filter((q: QuizQuestion) => q.lessonId === lessonId) || [];
+  try {
+    const questionsRef = collection(db, 'quizQuestions');
+    const q = query(
+      questionsRef,
+      where('lessonId', '==', lessonId),
+      orderBy('orderIndex', 'asc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as QuizQuestion[];
+  } catch (error) {
+    console.error('Error fetching quiz questions:', error);
+    return [];
+  }
+};
+
+export const saveQuizQuestion = async (question: Partial<QuizQuestion> & { lessonId: string; question: string }): Promise<void> => {
+  try {
+    if (question.id) {
+      const questionRef = doc(db, 'quizQuestions', question.id);
+      await setDoc(questionRef, question, { merge: true });
+    } else {
+      const questionsCollectionRef = collection(db, 'quizQuestions');
+      await addDoc(questionsCollectionRef, question);
+    }
+  } catch (error) {
+    console.error('Error saving quiz question:', error);
+    throw error;
+  }
+};
+
+export const deleteQuizQuestion = async (questionId: string): Promise<void> => {
+  try {
+    const questionRef = doc(db, 'quizQuestions', questionId);
+    await deleteDoc(questionRef);
+  } catch (error) {
+    console.error('Error deleting quiz question:', error);
+    throw error;
+  }
 };
 
 export const saveQuizResult = async (result: QuizResult): Promise<void> => {
