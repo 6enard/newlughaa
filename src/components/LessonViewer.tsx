@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, BookOpen, CheckCircle2, ArrowRight } from 'lucide-react';
-import { getLessons, getLessonContent, Lesson, LessonContent } from '../services/dataService';
+import { ArrowLeft, BookOpen, CheckCircle2, ArrowRight, Target } from 'lucide-react';
+import { getLessons, getLessonContent, getQuizQuestions, saveQuizResult, Lesson, LessonContent, QuizQuestion } from '../services/dataService';
+import { Quiz } from './Quiz';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LessonViewerProps {
   languageId: string;
@@ -12,11 +14,13 @@ interface LessonWithContent extends Lesson {
 }
 
 export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
+  const { user } = useAuth();
   const [lessons, setLessons] = useState<LessonWithContent[]>([]);
   const [selectedLesson, setSelectedLesson] = useState<LessonWithContent | null>(null);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'grid' | 'detail'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'detail' | 'quiz'>('grid');
   const [cardIndex, setCardIndex] = useState(0);
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
 
   useEffect(() => {
     const loadLessons = async () => {
@@ -54,6 +58,72 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
     };
     return names[lang] || lang;
   };
+
+  const handleStartQuiz = async () => {
+    if (!selectedLesson) return;
+
+    try {
+      const questions = await getQuizQuestions(selectedLesson.id);
+      setQuizQuestions(questions);
+      setViewMode('quiz');
+    } catch (error) {
+      console.error('Error loading quiz questions:', error);
+    }
+  };
+
+  const handleQuizComplete = async (score: number, total: number) => {
+    if (!user || !selectedLesson) return;
+
+    const percentage = Math.round((score / total) * 100);
+
+    try {
+      await saveQuizResult({
+        userId: user.uid,
+        lessonId: selectedLesson.id,
+        languageId: languageId,
+        score,
+        totalQuestions: total,
+        percentage,
+        completedAt: new Date(),
+      });
+    } catch (error) {
+      console.error('Error saving quiz result:', error);
+    }
+  };
+
+  const handleQuizRetry = () => {
+    setViewMode('quiz');
+  };
+
+  if (viewMode === 'quiz' && selectedLesson) {
+    return (
+      <>
+        <button
+          onClick={() => setViewMode('detail')}
+          className="flex items-center gap-2 text-emerald-600 font-semibold hover:text-emerald-700 mb-8 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Lesson
+        </button>
+
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Quiz: {selectedLesson.title}
+          </h1>
+          <p className="text-lg text-gray-600">
+            Test your knowledge and track your progress
+          </p>
+        </div>
+
+        <Quiz
+          questions={quizQuestions}
+          languageId={languageId}
+          onComplete={handleQuizComplete}
+          onRetry={handleQuizRetry}
+        />
+      </>
+    );
+  }
 
   if (viewMode === 'detail' && selectedLesson) {
     const currentCard = selectedLesson.content[cardIndex];
@@ -166,13 +236,26 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
             </div>
 
             {isLastCard && (
-              <div className="mt-8 bg-gradient-to-r from-emerald-50 to-sky-50 rounded-xl p-6 border border-emerald-200 text-center">
-                <p className="text-lg font-semibold text-emerald-900">
-                  Great job! You've completed this lesson.
-                </p>
-                <p className="text-gray-600 mt-2">
-                  Practice these words and come back to reinforce your learning!
-                </p>
+              <div className="mt-8 bg-gradient-to-r from-emerald-50 to-sky-50 rounded-xl p-6 border border-emerald-200">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Target className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-lg font-semibold text-emerald-900 mb-2">
+                      Ready to test your knowledge?
+                    </p>
+                    <p className="text-gray-600 mb-4">
+                      You've completed this lesson! Take the quiz to gauge your progress and reinforce what you've learned.
+                    </p>
+                    <button
+                      onClick={handleStartQuiz}
+                      className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
+                    >
+                      Start Quiz
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

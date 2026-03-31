@@ -34,6 +34,30 @@ export interface LessonContent {
   orderIndex: number;
 }
 
+export interface QuizQuestion {
+  id: string;
+  lessonId: string;
+  question: string;
+  correctAnswer: string;
+  options: {
+    kalenjin: string;
+    kikuyu: string;
+    luo: string;
+  };
+  orderIndex: number;
+}
+
+export interface QuizResult {
+  id?: string;
+  userId: string;
+  lessonId: string;
+  languageId: string;
+  score: number;
+  totalQuestions: number;
+  percentage: number;
+  completedAt: Date;
+}
+
 export const getLanguages = async (): Promise<Language[]> => {
   return lessonsData.languages;
 };
@@ -106,5 +130,59 @@ export const getUserProgress = async (userId: string): Promise<Record<string, bo
   } catch (error) {
     console.error('Error fetching user progress:', error);
     return {};
+  }
+};
+
+export const getQuizQuestions = async (lessonId: string): Promise<QuizQuestion[]> => {
+  const quizData = lessonsData as any;
+  return quizData.quizQuestions?.filter((q: QuizQuestion) => q.lessonId === lessonId) || [];
+};
+
+export const saveQuizResult = async (result: QuizResult): Promise<void> => {
+  try {
+    const docRef = doc(collection(db, 'users', result.userId, 'quizResults'));
+    await setDoc(docRef, {
+      lessonId: result.lessonId,
+      languageId: result.languageId,
+      score: result.score,
+      totalQuestions: result.totalQuestions,
+      percentage: result.percentage,
+      completedAt: result.completedAt,
+    });
+  } catch (error) {
+    console.error('Error saving quiz result:', error);
+    throw error;
+  }
+};
+
+export const getQuizResults = async (userId: string, lessonId?: string): Promise<QuizResult[]> => {
+  try {
+    const resultsRef = collection(db, 'users', userId, 'quizResults');
+    let q = query(resultsRef);
+
+    if (lessonId) {
+      q = query(resultsRef, where('lessonId', '==', lessonId));
+    }
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      userId,
+      ...doc.data(),
+    })) as QuizResult[];
+  } catch (error) {
+    console.error('Error fetching quiz results:', error);
+    return [];
+  }
+};
+
+export const getBestQuizScore = async (userId: string, lessonId: string): Promise<number> => {
+  try {
+    const results = await getQuizResults(userId, lessonId);
+    if (results.length === 0) return 0;
+    return Math.max(...results.map((r) => r.percentage));
+  } catch (error) {
+    console.error('Error fetching best quiz score:', error);
+    return 0;
   }
 };
