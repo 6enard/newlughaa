@@ -79,7 +79,7 @@
     {
       "id": "content-5",
       "lessonId": "lesson-2",
-      "kalenjin": "Aeng",
+      "kalenjin": "Agenge",
       "kikuyu": "Ĩmwe",
       "luo": "Achiel",
       "english": "One",
@@ -88,7 +88,7 @@
     {
       "id": "content-6",
       "lessonId": "lesson-2",
-      "kalenjin": "Ou",
+      "kalenjin": "Oeng",
       "kikuyu": "Igĩrĩ",
       "luo": "Ariyo",
       "english": "Two",
@@ -106,9 +106,9 @@
     {
       "id": "content-8",
       "lessonId": "lesson-2",
-      "kalenjin": "Ang'wan",
+      "kalenjin": "Angwan",
       "kikuyu": "Inya",
-      "luo": "Angwen",
+      "luo": "Ang'wen",
       "english": "Four",
       "orderIndex": 4
     },
@@ -120,6 +120,51 @@
       "luo": "Abich",
       "english": "Five",
       "orderIndex": 5
+    },
+    {
+      "id": "content-9a",
+      "lessonId": "lesson-2",
+      "kalenjin": "Lo",
+      "kikuyu": "Ithathatũ",
+      "luo": "Auchiel",
+      "english": "Six",
+      "orderIndex": 6
+    },
+    {
+      "id": "content-9b",
+      "lessonId": "lesson-2",
+      "kalenjin": "Tisab",
+      "kikuyu": "Mũgwanja",
+      "luo": "Abiriyo",
+      "english": "Seven",
+      "orderIndex": 7
+    },
+    {
+      "id": "content-9c",
+      "lessonId": "lesson-2",
+      "kalenjin": "Sisit",
+      "kikuyu": "Inyanya",
+      "luo": "Aboro",
+      "english": "Eight",
+      "orderIndex": 8
+    },
+    {
+      "id": "content-9d",
+      "lessonId": "lesson-2",
+      "kalenjin": "Sogol",
+      "kikuyu": "Kenda",
+      "luo": "Ochiko",
+      "english": "Nine",
+      "orderIndex": 9
+    },
+    {
+      "id": "content-9e",
+      "lessonId": "lesson-2",
+      "kalenjin": "Taman",
+      "kikuyu": "Ikũmi",
+      "luo": "Apar",
+      "english": "Ten",
+      "orderIndex": 10
     },
     {
       "id": "content-10",
@@ -213,7 +258,7 @@
       "question": "One",
       "correctAnswer": "luo",
       "options": {
-        "kalenjin": "Ou",
+        "kalenjin": "Oeng",
         "kikuyu": "Igĩrĩ",
         "luo": "Achiel"
       },
@@ -249,11 +294,71 @@
       "question": "Two",
       "correctAnswer": "luo",
       "options": {
-        "kalenjin": "Aeng",
+        "kalenjin": "Agenge",
         "kikuyu": "Ithano",
         "luo": "Ariyo"
       },
       "orderIndex": 4
+    },
+    {
+      "id": "quiz-2-5",
+      "lessonId": "lesson-2",
+      "question": "Six",
+      "correctAnswer": "kalenjin",
+      "options": {
+        "kalenjin": "Lo",
+        "kikuyu": "Ithathatũ",
+        "luo": "Auchiel"
+      },
+      "orderIndex": 5
+    },
+    {
+      "id": "quiz-2-6",
+      "lessonId": "lesson-2",
+      "question": "Seven",
+      "correctAnswer": "kalenjin",
+      "options": {
+        "kalenjin": "Tisab",
+        "kikuyu": "Mũgwanja",
+        "luo": "Abiriyo"
+      },
+      "orderIndex": 6
+    },
+    {
+      "id": "quiz-2-7",
+      "lessonId": "lesson-2",
+      "question": "Eight",
+      "correctAnswer": "kalenjin",
+      "options": {
+        "kalenjin": "Sisit",
+        "kikuyu": "Inyanya",
+        "luo": "Aboro"
+      },
+      "orderIndex": 7
+    },
+    {
+      "id": "quiz-2-8",
+      "lessonId": "lesson-2",
+      "question": "Nine",
+      "correctAnswer": "kikuyu",
+      "options": {
+        "kalenjin": "Sogol",
+        "kikuyu": "Kenda",
+        "luo": "Abiriyo"
+      },
+      "orderIndex": 8
+    },
+    {
+      "id": "quiz-2-9",
+      "lessonId": "lesson-2",
+      "question": "Ten",
+      "correctAnswer": "kalenjin",
+      "options": {
+        "kalenjin": "Taman",
+        "kikuyu": "Ikũmi",
+        "luo": "Apar"
+      },
+      "orderIndex": 9
     },
     {
       "id": "quiz-3-1",
