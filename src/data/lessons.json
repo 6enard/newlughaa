@@ -211,8 +211,8 @@
       "correctAnswer": "kalenjin",
       "options": {
         "kalenjin": "Chamge",
-        "kikuyu": "Tiguo wega",
-        "luo": "Oriti"
+        "kikuyu": "Wĩ mwega",
+        "luo": "Oyawore"
       },
       "orderIndex": 1
     },
@@ -234,8 +234,8 @@
       "question": "Goodbye",
       "correctAnswer": "luo",
       "options": {
-        "kalenjin": "Misoi",
-        "kikuyu": "Nĩ wega",
+        "kalenjin": "Koguutyo",
+        "kikuyu": "Tiguo wega",
         "luo": "Oriti"
       },
       "orderIndex": 3
@@ -258,8 +258,8 @@
       "question": "One",
       "correctAnswer": "luo",
       "options": {
-        "kalenjin": "Oeng",
-        "kikuyu": "Igĩrĩ",
+        "kalenjin": "Agenge",
+        "kikuyu": "Ĩmwe",
         "luo": "Achiel"
       },
       "orderIndex": 1
@@ -294,8 +294,8 @@
       "question": "Two",
       "correctAnswer": "luo",
       "options": {
-        "kalenjin": "Agenge",
-        "kikuyu": "Ithano",
+        "kalenjin": "Oeng",
+        "kikuyu": "Igĩrĩ",
         "luo": "Ariyo"
       },
       "orderIndex": 4
@@ -344,7 +344,7 @@
       "options": {
         "kalenjin": "Sogol",
         "kikuyu": "Kenda",
-        "luo": "Abiriyo"
+        "luo": "Ochiko"
       },
       "orderIndex": 8
     },
@@ -366,8 +366,8 @@
       "question": "Father",
       "correctAnswer": "luo",
       "options": {
-        "kalenjin": "Kogo",
-        "kikuyu": "Maitũ",
+        "kalenjin": "Papa",
+        "kikuyu": "Baba",
         "luo": "Wuoro"
       },
       "orderIndex": 1
@@ -379,8 +379,8 @@
       "correctAnswer": "kalenjin",
       "options": {
         "kalenjin": "Kogo",
-        "kikuyu": "Baba",
-        "luo": "Owadwa"
+        "kikuyu": "Maitũ",
+        "luo": "Mama"
       },
       "orderIndex": 2
     },
@@ -403,8 +403,8 @@
       "correctAnswer": "kalenjin",
       "options": {
         "kalenjin": "Lakwet",
-        "kikuyu": "Mwarĩ wa nyina",
-        "luo": "Mama"
+        "kikuyu": "Mũrũ wa nyina",
+        "luo": "Owadwa"
       },
       "orderIndex": 4
     }
