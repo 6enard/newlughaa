@@ -104,7 +104,7 @@ export function Home() {
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 Connect with your roots and keep Kenyan languages alive for future generations.
-                Learn Kalenjin, Kikuyu, and Luo through interactive lessons designed to honor our culture.
+                Learn Kenyan languages through interactive lessons designed to honor our culture.
               </p>
             </div>
 
