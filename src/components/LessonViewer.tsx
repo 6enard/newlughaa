@@ -225,14 +225,23 @@ export function LessonViewer({ languageId, onBack }: LessonViewerProps) {
                 </div>
               </div>
 
-              <button
-                onClick={handleNext}
-                disabled={isLastCard}
-                className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
-              >
-                {isLastCard ? 'Complete' : 'Next'}
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {isLastCard ? (
+                <button
+                  onClick={handleStartQuiz}
+                  className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition"
+                >
+                  Take Quiz
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleNext}
+                  className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition"
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             {isLastCard && (

@@ -95,72 +95,106 @@ export function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {view === 'dashboard' && (
           <>
-            <div className="mb-12">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Welcome to LUGHA47!
+            <div className="mb-16 text-center">
+              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+                Preserve Kenya's<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-sky-600">
+                  Rich Linguistic Heritage
+                </span>
               </h1>
-              <p className="text-lg text-gray-600">
-                Master new languages with interactive lessons and real-world practice
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Connect with your roots and keep Kenyan languages alive for future generations.
+                Learn Kalenjin, Kikuyu, and Luo through interactive lessons designed to honor our culture.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition">
-                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
-                  <BookOpen className="w-6 h-6 text-emerald-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Start Learning</h3>
-                <p className="text-gray-600 mb-4">
-                  Begin your journey with interactive lessons tailored to your level
+            <div className="mb-16 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl shadow-lg p-10 border border-amber-200">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">Our Mission</h2>
+                <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+                  Every language carries the wisdom, stories, and identity of its people.
+                  LUGHA47 is dedicated to preserving Kenya's indigenous languages by making
+                  them accessible, engaging, and relevant for modern learners.
                 </p>
-                <button
-                  onClick={() => setView('languages')}
-                  className="text-emerald-600 font-semibold hover:text-emerald-700 transition flex items-center gap-1"
-                >
-                  Browse Courses <ArrowRight className="w-4 h-4" />
-                </button>
               </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition">
-                <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center mb-4">
-                  <TrendingUp className="w-6 h-6 text-sky-600" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border-2 border-amber-300">
+                    <Languages className="w-8 h-8 text-amber-700" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Cultural Identity</h3>
+                  <p className="text-gray-600">
+                    Language is the heart of culture. Keep your heritage alive.
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Track Progress</h3>
-                <p className="text-gray-600 mb-4">
-                  Monitor your learning journey with detailed analytics and insights
-                </p>
-                <button className="text-sky-600 font-semibold hover:text-sky-700 transition flex items-center gap-1">
-                  View Stats <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition">
-                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4">
-                  <Trophy className="w-6 h-6 text-amber-600" />
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border-2 border-emerald-300">
+                    <BookOpen className="w-8 h-8 text-emerald-700" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Interactive Learning</h3>
+                  <p className="text-gray-600">
+                    Engaging lessons that make language learning natural and fun.
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Earn Rewards</h3>
-                <p className="text-gray-600 mb-4">
-                  Complete challenges and earn badges as you master new languages
-                </p>
-                <button className="text-amber-600 font-semibold hover:text-amber-700 transition flex items-center gap-1">
-                  View Achievements <ArrowRight className="w-4 h-4" />
-                </button>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-sky-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border-2 border-sky-300">
+                    <TrendingUp className="w-8 h-8 text-sky-700" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Track Your Journey</h3>
+                  <p className="text-gray-600">
+                    Monitor your progress as you master your native language.
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-emerald-600 to-sky-600 rounded-2xl shadow-xl p-8 text-white">
-              <div className="max-w-2xl">
-                <h2 className="text-3xl font-bold mb-3">Ready to start your journey?</h2>
-                <p className="text-emerald-50 mb-6 text-lg">
-                  Choose your first language and start learning with our comprehensive lessons
+            <div className="mb-16">
+              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Available Languages</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {languages.map((lang) => (
+                  <div
+                    key={lang.id}
+                    className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:shadow-2xl hover:border-emerald-300 transition group cursor-pointer"
+                    onClick={() => setView('languages')}
+                  >
+                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-sky-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                      <Languages className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{lang.name}</h3>
+                    <p className="text-emerald-600 font-semibold text-lg mb-3">{lang.nativeSpelling}</p>
+                    <p className="text-gray-600 mb-4">{lang.description}</p>
+                    <div className="flex items-center gap-2 text-emerald-600 font-semibold group-hover:gap-3 transition">
+                      Start Learning <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-sky-700 rounded-3xl shadow-2xl p-12 text-white mb-16">
+              <div className="max-w-3xl mx-auto text-center">
+                <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+                  <Trophy className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-4xl font-bold mb-4">Begin Your Language Journey Today</h2>
+                <p className="text-emerald-50 mb-8 text-lg leading-relaxed">
+                  Join thousands of Kenyans reconnecting with their linguistic roots.
+                  Whether you're learning your mother tongue or exploring Kenya's diverse cultures,
+                  LUGHA47 makes it easy, engaging, and meaningful.
                 </p>
                 <button
                   onClick={() => setView('languages')}
-                  className="bg-white text-emerald-600 px-6 py-3 rounded-lg font-semibold hover:bg-emerald-50 transition"
+                  className="bg-white text-emerald-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-emerald-50 transition shadow-lg hover:shadow-xl"
                 >
                   Choose Your Language
                 </button>
               </div>
+            </div>
+
+            <div className="text-center text-gray-600">
+              <p className="text-sm">
+                Preserving our languages means preserving our identity, our stories, and our future.
+              </p>
             </div>
           </>
         )}
